@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Website Backup Tool</title>
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card {
+  background:white;
+  padding:40px;
+  border-radius:15px;
+  width:500px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+  text-align:center;
+}
+input {
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  margin-bottom:15px;
+}
+button {
+  padding:12px 20px;
+  border:none;
+  border-radius:8px;
+  background:#667eea;
+  color:white;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover {
+  background:#5a67d8;
+}
+.backup-item {
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+  padding:8px;
+  background:#f4f4f4;
+  border-radius:6px;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>🔥 Website Backup Tool</h2>
+  <input id="url" placeholder="https://yourdomain.com">
+  <button onclick="backup()">Start Backup</button>
+  <div id="status"></div>
+  <div id="backupList"></div>
+</div>
+<script>
+async function backup() {
+  const url = document.getElementById('url').value;
+  document.getElementById('status').innerText = "Crawling...";
+
+  const res = await fetch('/backup', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({url})
+  });
+
+  await res.json();
+  document.getElementById('status').innerText = "Done!";
+  loadBackups();
+}
+
+async function loadBackups() {
+  const res = await fetch('/list');
+  const folders = await res.json();
+
+  const list = document.getElementById('backupList');
+  list.innerHTML = "<h4>Backups:</h4>";
+
+  folders.forEach(folder => {
+    list.innerHTML += `
+      <div class="backup-item">
+        <span>${folder}</span>
+        <a href="/download/${folder}">
+          <button>Download</button>
+        </a>
+      </div>
+    `;
+  });
+}
+
+loadBackups();
+</script>
+</body>
+</html>
